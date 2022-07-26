@@ -28,11 +28,6 @@ const sequelize = new Sequelize.Sequelize(DB_DATABASE, DB_USER, DB_PASSWORD, {
   benchmark: true,
 });
 
-sequelize
-  .authenticate()
-  .then(() => logger.info("Database authenticated successfully"))
-  .catch((err) => console.error(err));
-
 const DB = {
   /**
    * Add other models here

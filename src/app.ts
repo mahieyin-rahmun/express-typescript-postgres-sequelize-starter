@@ -44,7 +44,10 @@ class App {
   }
 
   private connectToDatabase() {
-    DB.sequelize.sync({ force: false });
+    DB.sequelize
+      .authenticate()
+      .then(() => logger.info("Database authenticated successfully"))
+      .catch((err: Error) => logger.error(err.message));
   }
 
   private initializeMiddlewares() {
