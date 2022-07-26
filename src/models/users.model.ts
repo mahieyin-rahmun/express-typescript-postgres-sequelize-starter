@@ -7,6 +7,7 @@ import {
 } from "sequelize";
 import { IUser } from "@interfaces/users.interface";
 import { ITimestamps } from "@interfaces/common.interface";
+import bcrypt from "bcrypt";
 
 export const UsersTableName = "Users";
 export type UserCreationAttributes = Optional<IUser, "id">;
@@ -54,6 +55,11 @@ export default function (sequelize: Sequelize): typeof UserModel {
   UserModel.init(UserModelAttributes, {
     tableName: UsersTableName,
     sequelize,
+    hooks: {
+      beforeCreate: (userInstance, _) => {
+        userInstance.password = bcrypt.hashSync(userInstance.password, 8);
+      },
+    },
   });
 
   return UserModel;
