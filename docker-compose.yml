@@ -1,0 +1,35 @@
+version: "3.7"
+
+services:
+  postgres:
+    container_name: postgres
+    image: postgres:14
+    restart: always
+    volumes:
+      - /var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE}
+    ports:
+      # if you already have postgres installed locally, you need to change the 
+      # host port to avoid conflict
+      # alternatively, you can  stop the local postgres service by running
+      # `sudo systemctl stop postgresql` 
+      - 5431:${DB_PORT}
+
+  sequelize_typescript_app:
+    container_name: sequelize_typescript_app
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./:/usr/app/
+      - /usr/app/node_modules
+    ports:
+      - ${PORT}:${PORT}
+    external_links:
+      - postgres
+    depends_on:
+      - postgres
