@@ -49,17 +49,25 @@ const logger = winston.createLogger({
       json: false,
       zippedArchive: true,
     }),
+
+    new winston.transports.Console({
+      level: "debug",
+      format: winston.format.combine(
+        winston.format.splat(),
+        winston.format.colorize(),
+      ),
+    }),
+
+    new winston.transports.Console({
+      format: winston.format.combine(
+        winston.format.splat(),
+        winston.format.colorize(),
+      ),
+      level: "debug",
+      handleExceptions: true,
+    }),
   ],
 });
-
-logger.add(
-  new winston.transports.Console({
-    format: winston.format.combine(
-      winston.format.splat(),
-      winston.format.colorize(),
-    ),
-  }),
-);
 
 const stream = {
   write: (message: string) => {

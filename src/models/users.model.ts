@@ -39,7 +39,7 @@ export const UserModelAttributes: ModelAttributes<
   },
   password: {
     allowNull: false,
-    type: DataTypes.STRING(255),
+    type: DataTypes.TEXT,
   },
   createdAt: {
     type: DataTypes.DATE,

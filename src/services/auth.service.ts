@@ -8,9 +8,11 @@ import { DataStoredInToken, TokenData } from "@interfaces/auth.interface";
 import { IUser } from "@interfaces/users.interface";
 import { isEmpty } from "@utils/util";
 import { EHttpStatusCodes } from "@/common";
+import { injectable } from "inversify";
 
+@injectable()
 class AuthService {
-  public users = DB.Users;
+  private readonly users = DB.Users;
 
   public async signup(userData: CreateUserDto): Promise<IUser> {
     if (isEmpty(userData))
@@ -28,10 +30,8 @@ class AuthService {
         `You're email ${userData.email} already exists`,
       );
 
-    const hashedPassword = await hash(userData.password, 10);
     const createUserData: IUser = await this.users.create({
       ...userData,
-      password: hashedPassword,
     });
 
     return createUserData;

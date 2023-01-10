@@ -9,25 +9,33 @@ import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 import { NODE_ENV, PORT, LOG_FORMAT, ORIGIN, CREDENTIALS } from "@config";
 import DB from "@models/index";
-import { Routes } from "@interfaces/routes.interface";
 import errorMiddleware from "@middlewares/error.middleware";
 import { logger, stream } from "@utils/logger";
+import { InversifyExpressServer } from "inversify-express-utils";
 
 class App {
+  public server: InversifyExpressServer;
   public app: express.Application;
   public env: string;
   public port: string | number;
 
-  constructor(routes: Routes[]) {
-    this.app = express();
+  constructor(server: InversifyExpressServer) {
+    this.server = server;
     this.env = NODE_ENV || "development";
     this.port = PORT || 3000;
 
     this.connectToDatabase();
-    this.initializeMiddlewares();
-    this.initializeRoutes(routes);
-    this.initializeSwagger();
-    this.initializeErrorHandling();
+
+    this.server.setConfig((app: express.Application) => {
+      this.initializeMiddlewares(app);
+      this.initializeSwagger(app);
+    });
+
+    this.server.setErrorConfig((app: express.Application) => {
+      this.initializeErrorHandling(app);
+    });
+
+    this.app = this.server.build();
   }
 
   public listen() {
@@ -40,7 +48,7 @@ class App {
   }
 
   public getServer() {
-    return this.app;
+    return this.server;
   }
 
   private connectToDatabase() {
@@ -50,24 +58,18 @@ class App {
       .catch((err: Error) => logger.error(err.message));
   }
 
-  private initializeMiddlewares() {
-    this.app.use(morgan(LOG_FORMAT, { stream }));
-    this.app.use(cors({ origin: ORIGIN, credentials: CREDENTIALS }));
-    this.app.use(hpp());
-    this.app.use(helmet());
-    this.app.use(compression());
-    this.app.use(express.json());
-    this.app.use(express.urlencoded({ extended: true }));
-    this.app.use(cookieParser());
+  private initializeMiddlewares(app: express.Application) {
+    app.use(morgan(LOG_FORMAT, { stream }));
+    app.use(cors({ origin: ORIGIN, credentials: CREDENTIALS }));
+    app.use(hpp());
+    app.use(helmet());
+    app.use(compression());
+    app.use(express.json());
+    app.use(express.urlencoded({ extended: true }));
+    app.use(cookieParser());
   }
 
-  private initializeRoutes(routes: Routes[]) {
-    routes.forEach((route) => {
-      this.app.use("/", route.router);
-    });
-  }
-
-  private initializeSwagger() {
+  private initializeSwagger(app: express.Application) {
     const options = {
       swaggerDefinition: {
         info: {
@@ -80,11 +82,11 @@ class App {
     };
 
     const specs = swaggerJSDoc(options);
-    this.app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
+    app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
   }
 
-  private initializeErrorHandling() {
-    this.app.use(errorMiddleware);
+  private initializeErrorHandling(app: express.Application) {
+    app.use(errorMiddleware);
   }
 }
 
