@@ -1,8 +1,9 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "target": "es2017",
-    "lib": ["es2017", "esnext.asynciterable"],
+    "target": "es5",
+    "lib": ["es6", "esnext.asynciterable"],
+    "types": ["reflect-metadata", "node"],
     "typeRoots": ["node_modules/@types"],
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
@@ -31,7 +32,8 @@
       "@models/*": ["models/*"],
       "@routes/*": ["routes/*"],
       "@services/*": ["services/*"],
-      "@utils/*": ["utils/*"]
+      "@utils/*": ["utils/*"],
+      "@dependency/*": ["dependency/*"]
     }
   },
   "include": ["src/**/*.ts", "src/**/*.json", ".env", "src/config/db.ts"],
